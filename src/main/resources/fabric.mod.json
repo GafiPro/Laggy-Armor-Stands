@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "laggyarmorstands",
-  "version": "\${version}",
+  "version": "${version}",
   "name": "Laggy Armor Stands",
   "description": "Hide armor stands client-side and reduce server tick work for stationary stands.",
   "authors": ["GafiPro"],
