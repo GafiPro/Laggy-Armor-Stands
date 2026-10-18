@@ -1,0 +1,41 @@
+name: Build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      - name: Build mod
+        run: gradle build --no-daemon --max-workers=1
+      - name: Verify produced mod
+        shell: bash
+        run: |
+          set -euo pipefail
+          JAR="$(find build/libs -maxdepth 1 -type f -name 'laggyarmorstands-*.jar' ! -name '*-sources.jar' ! -name '*-dev.jar' | head -n 1)"
+          test -n "$JAR"
+          jar tf "$JAR" | grep -Fx 'me/gafipro/laggyarmorstands/LaggyArmorStands.class'
+          jar tf "$JAR" | grep -Fx 'me/gafipro/laggyarmorstands/mixin/ArmorStandTickMixin.class'
+          jar tf "$JAR" | grep -Fx 'laggyarmorstands.mixins.json'
+          unzip -p "$JAR" fabric.mod.json | grep -F '"id": "laggyarmorstands"'
+      - name: Upload mod artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: laggy-armor-stands-1.21.1
+          path: build/libs/laggyarmorstands-*.jar
+          if-no-files-found: error
+          retention-days: 30
