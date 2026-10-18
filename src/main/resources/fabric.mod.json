@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "laggyarmorstands",
+  "version": "\${version}",
+  "name": "Laggy Armor Stands",
+  "description": "Hide armor stands client-side and reduce server tick work for stationary stands.",
+  "authors": ["GafiPro"],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["me.gafipro.laggyarmorstands.LaggyArmorStands"],
+    "client": ["me.gafipro.laggyarmorstands.LaggyArmorStandsClient"]
+  },
+  "mixins": ["laggyarmorstands.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.16.10",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}
