@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "hideArmorStands": true,
+  "optimizeStationaryTicks": true,
+  "skipInterval": 20,
+  "skipWhenOnGround": true,
+  "skipWhenNoGravity": true,
+  "dontSkipIfRiding": true,
+  "dontSkipIfHasPassengers": true,
+  "dontSkipIfOnFire": true,
+  "dontSkipIfMoving": true,
+  "dontSkipIfRecentlyHit": true
+}
