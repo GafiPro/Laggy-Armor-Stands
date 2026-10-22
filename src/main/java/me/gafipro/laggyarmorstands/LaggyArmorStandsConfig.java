@@ -12,21 +12,14 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-/** Configuration shared by the common tick mixin and the client renderer mixin. */
+/** Configuration shared by the common tick mixin and the client render culling mixin. */
 public final class LaggyArmorStandsConfig {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Logger LOGGER = LaggyArmorStands.LOGGER;
 
-    /** Master switch for every feature. */
     public boolean enabled = true;
-
-    /** Client-side rendering toggle. Interaction and server tracking remain enabled. */
     public boolean hideArmorStands = true;
-
-    /** Server-side tick reduction for stationary, safe-to-skip armor stands. */
     public boolean optimizeStationaryTicks = true;
-
-    /** Process eligible armor stands every N world ticks (20 means about 95% fewer ticks). */
     public int skipInterval = 20;
 
     public boolean skipWhenOnGround = true;
@@ -35,7 +28,7 @@ public final class LaggyArmorStandsConfig {
     public boolean dontSkipIfHasPassengers = true;
     public boolean dontSkipIfOnFire = true;
     public boolean dontSkipIfMoving = true;
-    public boolean dontSkipIfRecentlyHit = true;
+    public boolean dontSkipIfHurt = true;
 
     private Path getPath() {
         return FabricLoader.getInstance().getConfigDir().resolve("laggyarmorstands.json");
@@ -66,9 +59,9 @@ public final class LaggyArmorStandsConfig {
             dontSkipIfHasPassengers = loaded.dontSkipIfHasPassengers;
             dontSkipIfOnFire = loaded.dontSkipIfOnFire;
             dontSkipIfMoving = loaded.dontSkipIfMoving;
-            dontSkipIfRecentlyHit = loaded.dontSkipIfRecentlyHit;
+            dontSkipIfHurt = loaded.dontSkipIfHurt;
 
-            // Persist clamped values and any newly introduced defaults.
+            // Rewrite the normalized configuration, adding defaults for newly introduced options.
             save();
         } catch (IOException | RuntimeException exception) {
             LOGGER.warn("Could not load {}; keeping safe defaults.", path, exception);
@@ -87,9 +80,8 @@ public final class LaggyArmorStandsConfig {
     }
 
     /**
-     * Returns true when this tick can be skipped without affecting moving, burning,
-     * mounted, carrying, or recently-hit stands. The world clock (not entity age) is
-     * used for staggering because a cancelled tick does not increment entity age.
+     * Cancels only idle server ticks. Ineligible stands retain normal ticking.
+     * The phase uses world time and the entity ID so cancelled ticks do not affect the schedule.
      */
     public boolean shouldSkipTick(ArmorStandEntity stand) {
         if (!enabled || !optimizeStationaryTicks || stand.getWorld().isClient) {
@@ -105,19 +97,14 @@ public final class LaggyArmorStandsConfig {
         if (dontSkipIfOnFire && stand.isOnFire()) {
             return false;
         }
-        if (dontSkipIfMoving) {
-            Vec3d velocity = stand.getVelocity();
-            if (velocity.lengthSquared() > 1.0E-6) {
-                return false;
-            }
+        if (dontSkipIfHurt && stand.hurtTime > 0) {
+            return false;
         }
-
-        int interval = clampInterval(skipInterval);
-        if (dontSkipIfRecentlyHit && stand.lastHitTime > 0L
-                && stand.getWorld().getTime() - stand.lastHitTime < Math.max(20, interval)) {
+        if (dontSkipIfMoving && stand.getVelocity().lengthSquared() > 1.0E-6) {
             return false;
         }
 
+        int interval = clampInterval(skipInterval);
         boolean stableOnGround = skipWhenOnGround && stand.isOnGround();
         boolean stableWithoutGravity = skipWhenNoGravity && stand.hasNoGravity();
         if (!stableOnGround && !stableWithoutGravity) {

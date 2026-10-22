@@ -9,5 +9,5 @@
   "dontSkipIfHasPassengers": true,
   "dontSkipIfOnFire": true,
   "dontSkipIfMoving": true,
-  "dontSkipIfRecentlyHit": true
+  "dontSkipIfHurt": true
 }
