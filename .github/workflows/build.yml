@@ -30,7 +30,7 @@ jobs:
           JAR="$(find build/libs -maxdepth 1 -type f -name 'laggyarmorstands-*.jar' ! -name '*-sources.jar' ! -name '*-dev.jar' | head -n 1)"
           test -n "$JAR"
           jar tf "$JAR" | grep -Fx 'me/gafipro/laggyarmorstands/LaggyArmorStands.class'
-          jar tf "$JAR" | grep -Fx 'me/gafipro/laggyarmorstands/mixin/LivingEntityTickMixin.class'
+          jar tf "$JAR" | grep -Fx 'me/gafipro/laggyarmorstands/mixin/EntityTickMixin.class'
           jar tf "$JAR" | grep -Fx 'me/gafipro/laggyarmorstands/mixin/EntityRenderManagerMixin.class'
           jar tf "$JAR" | grep -Fx 'laggyarmorstands.mixins.json'
           unzip -p "$JAR" fabric.mod.json | python -m json.tool >/dev/null
