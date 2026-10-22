@@ -84,7 +84,7 @@ public final class LaggyArmorStandsConfig {
      * The phase uses world time and the entity ID so cancelled ticks do not affect the schedule.
      */
     public boolean shouldSkipTick(ArmorStandEntity stand) {
-        if (!enabled || !optimizeStationaryTicks || stand.getWorld().isClient) {
+        if (!enabled || !optimizeStationaryTicks || stand.getEntityWorld().isClient) {
             return false;
         }
 
@@ -111,7 +111,7 @@ public final class LaggyArmorStandsConfig {
             return false;
         }
 
-        long phase = Math.floorMod(stand.getWorld().getTime() + (long) stand.getId(), interval);
+        long phase = Math.floorMod(stand.getEntityWorld().getTime() + (long) stand.getId(), interval);
         return phase != 0L;
     }
 
