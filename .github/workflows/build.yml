@@ -23,6 +23,7 @@ jobs:
       - name: Build mod
         run: gradle build --no-daemon --max-workers=1
       - name: Verify produced mod
+        id: verify
         shell: bash
         run: |
           set -euo pipefail
@@ -36,10 +37,11 @@ jobs:
           unzip -p "$JAR" fabric.mod.json | grep -F '"id": "laggyarmorstands"'
           unzip -p "$JAR" fabric.mod.json | grep -F '"version": "1.0.1"'
           unzip -p "$JAR" fabric.mod.json | grep -F '"minecraft": "1.21.11"'
+          echo "jar=$JAR" >> "$GITHUB_OUTPUT"
       - name: Upload mod artifact
         uses: actions/upload-artifact@v4
         with:
           name: laggy-armor-stands-1.21.11
-          path: build/libs/laggyarmorstands-*.jar
+          path: ${{ steps.verify.outputs.jar }}
           if-no-files-found: error
           retention-days: 30
